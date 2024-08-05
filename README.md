@@ -1,3 +1,10 @@
+## Sample images from running application
+# Unsolved generated 25x25 maze 
+![image info](./grid_empty.png)
+
+# Generated 25x25 maze with solved path in red 
+![image info](./grid_solved.png)
+
 ## How to use this Rust Maze Generator
 - Clone this repository
 - If you have the rust environment installed already on local do the below:
