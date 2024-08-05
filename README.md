@@ -5,6 +5,9 @@
 # Generated 25x25 maze with solved path in red 
 ![image info](./grid_solved.png)
 
+## Theory
+This both generates and solves the maze with recursive backtracking and using a stack.
+
 ## How to use this Rust Maze Generator
 - Clone this repository
 - If you have the rust environment installed already on local do the below:
