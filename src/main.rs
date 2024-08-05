@@ -5,6 +5,7 @@ use rand::prelude::SliceRandom;
 enum Cell {
     Wall,
     Path,
+    SolvedPath,
 }
 
 struct Maze {
@@ -56,7 +57,35 @@ impl Maze {
         self.grid[0][0] = Cell::Path; // Entrance
         self.grid[self.height - 1][self.width - 1] = Cell::Path; // Exit
     }
-    
+
+    fn solve(&mut self) -> bool {
+        self.solve_recursive(0, 0)
+    }
+
+    fn solve_recursive(&mut self, x: usize, y: usize) -> bool {
+        if x == self.width - 1 && y == self.height - 1 {
+            self.grid[y][x] = Cell::SolvedPath;
+            return true;
+        }
+
+        if self.grid[y][x] == Cell::Path {
+            self.grid[y][x] = Cell::SolvedPath;
+
+            let directions = [(1, 0), (0, 1), (-1, 0), (0, -1)];
+            for &(dx, dy) in &directions {
+                let nx = x.wrapping_add(dx as usize);
+                let ny = y.wrapping_add(dy as usize);
+
+                if nx < self.width && ny < self.height && self.solve_recursive(nx, ny) {
+                    return true;
+                }
+            }
+
+            self.grid[y][x] = Cell::Path;
+        }
+
+        false
+    }
 
     fn display(&self) {
         let mut buffer = String::new();
@@ -73,10 +102,11 @@ impl Maze {
         for row in &self.grid {
             buffer.push_str("█"); // Left border
             for cell in row {
-                buffer.push(match cell {
-                    Cell::Wall => '█', // Using a solid block character for walls
-                    Cell::Path => ' ', // Using a space for paths
-                });
+                match cell {
+                    Cell::Wall => buffer.push('█'), // Using a solid block character for walls
+                    Cell::Path => buffer.push(' '), // Using a space for paths
+                    Cell::SolvedPath => buffer.push_str("\x1b[31m█\x1b[0m"), // Using red color for solved path
+                }
             }
             buffer.push_str("█\n"); // Right border
         }
@@ -94,9 +124,23 @@ impl Maze {
 
 fn main() {
     let mut input = String::new();
-    println!("The maze will be a n*n grid. Please enter an odd value for the dimensions of the generated maze: ");
-    io::stdin().read_line(&mut input).expect("Failed to read user input...");
-    let size: usize = input.trim().parse().expect("Please enter a number.");
+    let size: usize;
+
+    loop {
+        println!("The maze will be a n*n grid. Please enter an odd value for the dimensions of the generated maze: ");
+        io::stdin().read_line(&mut input).expect("Failed to read user input...");
+        
+        match input.trim().parse::<usize>() {
+            Ok(n) if n % 2 != 0 => {
+                size = n;
+                break;
+            }
+            _ => {
+                println!("Invalid input. Please enter an odd number.");
+                input.clear();
+            }
+        }
+    }
 
     let mut maze = Maze::new(size, size);
 
@@ -104,4 +148,12 @@ fn main() {
 
     println!("Grid after generation:");
     maze.display();
+
+    if maze.solve() {
+        println!("Solved maze:");
+        maze.display();
+    } else {
+        println!("No solution found.");
+    }
 }
+
