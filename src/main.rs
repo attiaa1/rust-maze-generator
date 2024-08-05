@@ -94,14 +94,11 @@ impl Maze {
 
 fn main() {
     let mut input = String::new();
-    println!("The maze will be a n*n grid. Please enter a value for the width and height of the generated maze: ");
+    println!("The maze will be a n*n grid. Please enter an odd value for the dimensions of the generated maze: ");
     io::stdin().read_line(&mut input).expect("Failed to read user input...");
     let size: usize = input.trim().parse().expect("Please enter a number.");
 
     let mut maze = Maze::new(size, size);
-
-    println!("Grid after initialization:");
-    maze.display();
 
     maze.generate();
 
